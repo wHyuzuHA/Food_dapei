@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>趣味自定义美食菜谱</title>
+    <style>
+        :root {
+            --primary-white: #ffffff;
+            --bg-gray: #f5f5f7;
+            --text-color: #333;
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --meat-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            --veg-gradient: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            --fish-gradient: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            --mush-gradient: linear-gradient(135deg, #fff5cc 0%, #ffefa0 50%, #ffffff 100%);
+            --method-gradient: linear-gradient(135deg, #ffd147 0%, #ff9a50 100%);
+            --tool-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --btn-green: #4cd964;
+            --btn-pink: #ff2d55;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+        body { background-color: var(--bg-gray); color: var(--text-color); height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        
+        .hidden { display: none !important; }
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s;
+            color: white;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-green { background-color: var(--btn-green); }
+        .btn-pink { background-color: var(--btn-pink); }
+        .btn-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.1);
+            color: #333;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            position: relative;
+            overflow-y: auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .auth-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 25px;
+            text-align: center;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 350px;
+            padding: 35px 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .auth-title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: bold;
+        }
+        .input-group {
+            width: 100%;
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            outline: none;
+            font-size: 15px;
+            transition: border 0.2s;
+        }
+        .input-group input:focus {
+            border-color: var(--btn-green);
+        }
+        .auth-options {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 22px;
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 12px;
+        }
+        .auth-switch {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #666;
+        }
+        .auth-switch span {
+            color: var(--btn-pink);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .main-menu {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            padding: 20px;
+            padding-top: 100px;
+            position: relative;
+        }
+        .menu-logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--btn-pink);
+            position: absolute;
+            top: 40px;
+            left: 0;
+            right: 0;
+            text-align: center;
+        }
+        .menu-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .menu-card {
+            width: 100%;
+            height: 160px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .menu-card:hover { transform: translateY(-3px); }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            margin-top: 60px;
+        }
+        .step { font-size: 12px; color: #ccc; font-weight: bold; }
+        .step.active { color: var(--btn-green); }
+
+        .selection-area {
+            padding: 20px;
+            padding-bottom: 120px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .category-title { margin: 10px 0; font-size: 16px; color: #555; border-left: 4px solid #ddd; padding-left: 10px; }
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .food-item {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .food-item:hover { transform: scale(1.05); }
+        .food-item.veg { background: var(--veg-gradient); }
+        .food-item.meat { background: var(--meat-gradient); }
+        .food-item.fish { background: var(--fish-gradient); }
+        .food-item.mush { background: var(--mush-gradient); }
+        .food-icon { font-size: 30px; margin-bottom: 5px; }
+        .food-name { font-size: 12px; text-align: center; }
+        
+        .shopping-cart {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            height: 100px;
+            background: rgba(255,255,255,0.98);
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 90;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        .cart-items { flex: 1; display: flex; gap: 10px; overflow-x: auto; padding-right: 10px; }
+        .cart-item {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            background: #f0f0f0;
+            flex-shrink: 0;
+        }
+        .cart-action { display: flex; flex-direction: column; align-items: center; gap:5px; }
+        
+        @keyframes dropIn {
+            0% { transform: translateY(-500px) rotate(0deg); opacity: 0; }
+            60% { transform: translateY(20px) rotate(180deg); opacity: 1; }
+            100% { transform: translateY(0) rotate(360deg); opacity: 1; }
+        }
+        .falling { animation: dropIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        .method-grid, .tool-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .method-item, .tool-item {
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .method-item { background: var(--method-gradient); color: white; }
+        .tool-item { background: var(--tool-gradient); color: #333; }
+        .method-item.selected, .tool-item.selected { border-color: var(--btn-green); background: rgba(76, 217, 100, 0.2); }
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #555;
+            min-height: 100px;
+        }
+
+        .ai-loading {
+            text-align: center;
+            padding: 50px;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--btn-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .recipe-result { padding: 20px; padding-bottom: 80px; margin-top: 60px; }
+        .recipe-header { text-align: center; margin-bottom: 20px; }
+        .recipe-name { font-size: 24px; color: var(--btn-pink); margin: 10px 0; }
+        .recipe-info { text-align: center; margin: 10px 0; font-size: 16px; color: #666; }
+        .food-emoji-big { font-size: 60px; margin: 10px 0; }
+        .nutrient-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+        .recipe-steps { line-height: 1.8; color: #444; }
+        .recipe-steps li { margin-bottom: 10px; }
+
+        .profile-header {
+            text-align: center;
+            padding: 50px 20px 30px;
+            background: #f9f9f9;
+            margin-top: 60px;
+        }
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #ddd;
+            margin: 0 auto 15px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .profile-btn {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: var(--btn-green);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .saved-recipes { padding: 20px; }
+        .saved-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+
+        .edit-profile {
+            padding: 40px 25px;
+            margin-top: 60px;
+            text-align: center;
+        }
+        .edit-profile .avatar {
+            width: 100px;
+            height: 100px;
+        }
+        .edit-input {
+            width: 100%;
+            padding: 14px;
+            margin: 15px 0;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            outline: none;
+        }
+
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 200;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; }
+        .modal input { width: 100%; padding: 12px; margin: 12px 0; border: 1px solid #eee; border-radius: 10px; outline: none; }
+
+        .folder-list { margin-top: 15px; }
+        .folder-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .folder-item button {
+            background: var(--btn-pink);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .recipe-in-folder {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .recipe-in-folder button {
+            background: var(--btn-green);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-size: 12px;
+        }
+
+        .folder-create-btn {
+            display: inline-block;
+            background: var(--btn-green);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        @media (min-width: 768px) {
+            .auth-container { padding: 50px 0; }
+            .shopping-cart { border-radius: 15px 15px 0 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div id="view-auth" class="auth-container">
+        <div class="auth-card">
+            <h2 class="auth-title">食谱混搭器</h2>
+            <div id="login-form">
+                <div class="input-group"><input type="tel" id="login-phone" placeholder="请输入手机号"></div>
+                <div class="input-group"><input type="password" id="login-pass" placeholder="请输入密码"></div>
+                <div class="auth-options">
+                    <label><input type="checkbox" id="remember-me"> 记住密码</label>
+                    <label><input type="checkbox" id="auto-login"> 自动登录</label>
+                </div>
+                <button class="btn btn-green auth-btn" onclick="handleLogin()">登录</button>
+                <p class="auth-switch">没有账号？ <span onclick="toggleAuthMode('register')">去注册</span></p>
+            </div>
+
+            <div id="register-form" class="hidden">
+                <div class="input-group"><input type="tel" id="reg-phone" placeholder="请输入手机号"></div>
+                <div class="input-group"><input type="password" id="reg-pass" placeholder="请输入密码(6位以上)"></div>
+                <button class="btn btn-pink auth-btn" onclick="handleRegister()">注册</button>
+                <p class="auth-switch">已有账号？ <span onclick="toggleAuthMode('login')">去登录</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-home" class="main-menu hidden">
+        <button class="btn btn-back" onclick="logout()">←</button>
+        <div class="menu-logo">ZJY</div>
+        <div class="menu-title">食谱混搭器</div>
+        <div class="menu-card btn-green" onclick="navigateTo('view-design-step1')">
+            设计食谱
+        </div>
+        <div class="menu-card btn-pink" onclick="navigateTo('view-profile')">
+            我的食谱
+        </div>
+    </div>
+
+    <div id="view-design-step1" class="hidden">
+        <button class="btn btn-back" onclick="confirmExitStep1()">←</button>
+        <div class="progress-bar">
+            <span class="step active">1. 食材选择</span>
+            <span class="step">2. 烹饪方法</span>
+            <span class="step">3. 工具选择</span>
+        </div>
+        <div class="selection-area">
+            <div style="text-align:center; color:#666; font-size:12px; margin-bottom:10px;">
+                👉 单击食材设置重量加入 | 单击购物篮修改重量
+            </div>
+            <div class="category-title">🥩 荤菜肉类</div>
+            <div class="food-grid" id="meat-grid"></div>
+            <div class="category-title">🐟 水产海鲜</div>
+            <div class="food-grid" id="fish-grid"></div>
+            <div class="category-title">🥬 新鲜素菜</div>
+            <div class="food-grid" id="veg-grid"></div>
+            <div class="category-title">🍄 菌菇干货</div>
+            <div class="food-grid" id="mush-grid"></div>
+        </div>
+        <div class="shopping-cart glass">
+            <div class="cart-items" id="cart-items"></div>
+            <div class="cart-action">
+                <button class="btn btn-pink" onclick="clearCart()" style="padding:6px 12px; font-size:12px;">清空</button>
+                <button class="btn btn-green" onclick="finishStep1()">选完啦</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-design-step2" class="hidden">
+        <button class="btn btn-back" onclick="navigateTo('view-design-step1')">←</button>
+        <div class="progress-bar">
+            <span class="step">1. 食材选择</span>
+            <span class="step active">2. 烹饪方法</span>
+            <span class="step">3. 工具选择</span>
+        </div>
+        <div class="selection-area">
+            <div class="method-grid" id="method-grid"></div>
+            <div class="info-panel glass" id="method-info">请选择一种烹饪方法</div>
+            <br>
+            <button class="btn btn-green" style="width:100%" onclick="finishStep2()">选完啦</button>
+        </div>
+    </div>
+
+    <div id="view-design-step3" class="hidden">
+        <button class="btn btn-back" onclick="navigateTo('view-design-step2')">←</button>
+        <div class="progress-bar">
+            <span class="step">1. 食材选择</span>
+            <span class="step">2. 烹饪方法</span>
+            <span class="step active">3. 工具选择</span>
+        </div>
+        <div class="selection-area">
+            <div class="tool-grid" id="tool-grid"></div>
+            <div class="info-panel glass" id="tool-info">请选择配套工具</div>
+            <br>
+            <button class="btn btn-pink" style="width:100%" onclick="startCooking()">开始烹饪</button>
+        </div>
+    </div>
+
+    <div id="view-ai-loading" class="hidden ai-loading">
+        <div class="spinner"></div>
+        <h3>AI 大厨正在思考...</h3>
+        <p>正在为您生成真实美味菜谱</p>
+    </div>
+
+    <div id="view-result" class="hidden">
+        <button class="btn btn-back" onclick="checkSaveBeforeExit()">←</button>
+        <button class="btn btn-pink" style="position:absolute; top:20px; right:20px; z-index:100;" onclick="openSaveModal()">加入菜单</button>
+        
+        <div class="recipe-result">
+            <div class="recipe-header">
+                <h3>恭喜你创作出</h3>
+                <div class="food-emoji-big" id="result-food-emoji">🍽️</div>
+                <h2 class="recipe-name" id="result-name">神秘料理</h2>
+                <div class="recipe-info" id="result-emojis"></div>
+            </div>
+
+            <div class="nutrient-box glass" id="nutrient-info">
+                <strong>🍱 食材清单</strong><br>
+            </div>
+
+            <div class="glass" style="padding:20px; margin-top:10px;">
+                <ul class="recipe-steps" id="result-steps"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-recipe-detail" class="hidden">
+        <button class="btn btn-back" onclick="navigateTo('view-folder')">←</button>
+        <div class="recipe-result">
+            <div class="recipe-header">
+                <div class="food-emoji-big" id="detail-food-emoji">🍽️</div>
+                <h2 class="recipe-name" id="detail-name">食谱详情</h2>
+                <div class="recipe-info" id="detail-info"></div>
+            </div>
+
+            <div class="nutrient-box glass" id="detail-nutrient-info">
+                <strong>📋 食材清单</strong><br>
+            </div>
+
+            <div class="glass" style="padding:20px; margin-top:10px;">
+                <ul class="recipe-steps" id="detail-steps"></ul>
+            </div>
+            
+            <div style="margin-top:20px; text-align:center;">
+                <button class="btn btn-pink" onclick="deleteRecipe()">删除食谱</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-profile" class="hidden">
+        <button class="btn btn-back" onclick="navigateTo('view-home')">←</button>
+        <div class="profile-header">
+            <img src="https://via.placeholder.com/80" id="user-avatar" class="avatar">
+            <h3 id="user-name-display">用户昵称</h3>
+            <p style="color:#999; font-size:12px; margin-top:5px;" id="user-id-display">ID: 123456</p>
+            <button class="profile-btn" onclick="navigateTo('view-edit-profile')">修改个人信息</button>
+        </div>
+        
+        <div class="saved-recipes">
+            <h4>食谱文件夹管理</h4>
+            <button class="folder-create-btn" onclick="createNewFolder()">创建新文件夹</button>
+            <div id="folders-list"></div>
+        </div>
+    </div>
+
+    <div id="view-edit-profile" class="hidden edit-profile">
+        <button class="btn btn-back" onclick="navigateTo('view-profile')">←</button>
+        <h3>修改个人信息</h3>
+        <img src="" id="edit-avatar" class="avatar" onclick="changeAvatarFromEdit()">
+        <input type="text" id="edit-name" class="edit-input" placeholder="输入新昵称">
+        <button class="btn btn-green" style="width:100%; margin-top:10px;" onclick="saveUserProfile()">保存修改</button>
+    </div>
+
+    <div id="view-folder" class="hidden">
+        <button class="btn btn-back" onclick="navigateTo('view-profile')">←</button>
+        <div class="profile-header">
+            <h3 id="folder-title">文件夹</h3>
+            <p style="color:#999; font-size:12px; margin-top:5px;" id="folder-count">共 0 个食谱</p>
+        </div>
+        <div class="saved-recipes">
+            <div id="folder-recipes-list"></div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-save" class="modal hidden">
+    <div class="modal-content">
+        <h3>保存菜单</h3>
+        <select id="folder-select" style="width:100%; padding:10px; margin:10px 0; border-radius:8px;">
+            <option value="">选择现有文件夹</option>
+        </select>
+        <input type="text" id="new-menu-name" placeholder="输入新菜单名称">
+        <button class="btn btn-green" onclick="saveRecipe()">保存</button>
+        <button class="btn" style="background:#ccc;margin-top:8px;" onclick="closeModal()">取消</button>
+    </div>
+</div>
+
+<div id="food-weight-modal" class="modal hidden">
+    <div class="modal-content">
+        <h4 id="food-modal-title">设置食材重量</h4>
+        <input type="number" id="food-weight-input" placeholder="请输入重量(g)" value="100">
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button class="btn" style="background:#ccc;flex:1" onclick="closeFoodModal()">取消</button>
+            <button class="btn btn-green" style="flex:1" onclick="confirmAddFood()">确认加入</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-create-folder" class="modal hidden">
+    <div class="modal-content">
+        <h3>创建新文件夹</h3>
+        <input type="text" id="folder-name-input" placeholder="输入文件夹名称">
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn" style="background:#ccc;flex:1" onclick="closeCreateFolderModal()">取消</button>
+            <button class="btn btn-green" style="flex:1" onclick="createFolder()">创建</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-delete-confirm" class="modal hidden">
+    <div class="modal-content">
+        <h3>确认删除</h3>
+        <p>确定要删除这个食谱吗？</p>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn" style="background:#ccc;flex:1" onclick="closeDeleteConfirmModal()">取消</button>
+            <button class="btn btn-pink" style="flex:1" onclick="confirmDeleteRecipe()">删除</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        currentUser: null,
+        cart: [],
+        selectedMethod: null,
+        selectedTool: null,
+        generatedRecipe: null,
+        pendingFood: null,
+        currentFolderId: null,
+        currentRecipeId: null
+    };
+
+    const foods = [
+        { id: 'm1', name: '牛肉', icon: '🐂🥩', type: 'meat' },
+        { id: 'm2', name: '鸡肉', icon: '🐓🍗', type: 'meat' },
+        { id: 'm3', name: '猪肉', icon: '🐖🥩', type: 'meat' },
+        { id: 'm4', name: '羊肉', icon: '🐑🥩', type: 'meat' },
+        { id: 'm5', name: '排骨', icon: '🍖', type: 'meat' },
+        { id: 'm6', name: '五花肉', icon: '🥓', type: 'meat' },
+        { id: 'm7', name: '猪肝', icon: '🫀', type: 'meat' },
+        { id: 'm8', name: '鸡蛋', icon: '🥚', type: 'meat' },
+        { id: 'f1', name: '虾仁', icon: '🍤', type: 'fish' },
+        { id: 'f2', name: '鲈鱼', icon: '🐟', type: 'fish' },
+        { id: 'f3', name: '花甲', icon: '🦪', type: 'fish' },
+        { id: 'f4', name: '鱿鱼', icon: '🦑', type: 'fish' },
+        { id: 'f5', name: '扇贝', icon: '🐚', type: 'fish' },
+        { id: 'v1', name: '西兰花', icon: '🥦', type: 'veg' },
+        { id: 'v2', name: '胡萝卜', icon: '🥕', type: 'veg' },
+        { id: 'v3', name: '玉米', icon: '🌽', type: 'veg' },
+        { id: 'v4', name: '番茄', icon: '🍅', type: 'veg' },
+        { id: 'v5', name: '土豆', icon: '🥔', type: 'veg' },
+        { id: 'v6', name: '白菜', icon: '🥬', type: 'veg' },
+        { id: 'v7', name: '生菜', icon: '🥬💦', type: 'veg' },
+        { id: 'v8', name: '黄瓜', icon: '🥒', type: 'veg' },
+        { id: 'v9', name: '茄子', icon: '🍆', type: 'veg' },
+        { id: 'v10', name: '青椒', icon: '🫑', type: 'veg' },
+        { id: 'v11', name: '洋葱', icon: '🧅', type: 'veg' },
+        { id: 'v12', name: '莲藕', icon: '🪷', type: 'veg' },
+        { id: 'v13', name: '冬瓜', icon: '🀩🥒', type: 'veg' },
+        { id: 'v14', name: '红辣椒', icon: '🌶️', type: 'veg' },
+        { id: 'mg1', name: '香菇', icon: '🟤', type: 'mush' },
+        { id: 'mg2', name: '金针菇', icon: '💰🍄', type: 'mush' },
+        { id: 'mg3', name: '杏鲍菇', icon: '🍂🍄', type: 'mush' },
+        { id: 'mg4', name: '木耳', icon: '🪵🟤', type: 'mush' }
+    ];
+
+    const methods = [
+        { id: 'meth1', name: '爆炒', icon: '🔥', desc: '高温快炒，锁住鲜味，口感脆嫩。' },
+        { id: 'meth2', name: '清蒸', icon: '🍲', desc: '保留原味，营养健康，清淡不腻。' },
+        { id: 'meth3', name: '炖煮', icon: '🥘', desc: '慢火熬煮，汤汁浓郁，食材酥烂。' },
+        { id: 'meth4', name: '烧烤', icon: '🍢', desc: '高温烤制，焦香入味，风味十足。' },
+        { id: 'meth5', name: '白灼', icon: '💧', desc: '沸水轻烫，最大保留鲜甜，低脂健康。' },
+        { id: 'meth6', name: '凉拌', icon: '🥗', desc: '无需加热，清爽开胃，夏季首选。' },
+        { id: 'meth7', name: '卤制', icon: '🫙', desc: '卤汁浸泡，入味持久，冷吃热吃均可。' },
+        { id: 'meth8', name: '煎炸', icon: '🍳', desc: '油炸/煎制，外皮酥脆，香气浓郁。' },
+        { id: 'meth9', name: '焖烧', icon: '🍲', desc: '盖盖焖煮，收汁入味，口感软糯。' },
+        { id: 'meth10', name: '焗烤', icon: '🔥', desc: '密封焗烤，香气锁在食材内，西式风味。' }
+    ];
+
+    const tools = {
+        'meth1': [
+            { id: 't1', name: '炒锅', icon: '🍳', desc: '家用必备，受热均匀，爆炒神器。' },
+            { id: 't2', name: '铁锅', icon: '🫖', desc: '传统铁锅，补铁健康，大火爆炒更香。' },
+            { id: 't3', name: '雪平锅', icon: '🍲', desc: '日式小锅，轻便快速，适合快炒。' }
+        ],
+        'meth2': [
+            { id: 't4', name: '蒸锅', icon: '🥢', desc: '多层蒸汽，一次蒸多道菜品。' },
+            { id: 't5', name: '电蒸炉', icon: '🔌', desc: '智能控温，蒸制更精准。' }
+        ],
+        'meth3': [
+            { id: 't6', name: '砂锅', icon: '🏺', desc: '保温锁香，炖汤最正宗。' },
+            { id: 't7', name: '高压锅', icon: '🍲', desc: '快速炖烂，省时省力。' },
+            { id: 't8', name: '珐琅锅', icon: '🍲', desc: '颜值高，锁水强，慢炖天花板。' }
+        ],
+        'meth4': [
+            { id: 't9', name: '烤箱', icon: '🔥', desc: '均匀烤制，外焦里嫩。' },
+            { id: 't10', name: '空气炸锅', icon: '🍟', desc: '无油健康，模拟烧烤口感。' },
+            { id: 't11', name: '烤架', icon: '🍢', desc: '明火烧烤，烟火气十足。' }
+        ],
+        'meth5': [
+            { id: 't12', name: '煮锅', icon: '🍲', desc: '简单煮制，白灼专用。' },
+            { id: 't13', name: '汤锅', icon: '🍲', desc: '大容量，适合批量白灼。' }
+        ],
+        'meth6': [
+            { id: 't14', name: '凉拌盆', icon: '🥗', desc: '大口径，方便搅拌入味。' },
+            { id: 't15', name: '捣蒜器', icon: '🧄', desc: '制作凉拌灵魂调料。' }
+        ],
+        'meth7': [
+            { id: 't16', name: '卤锅', icon: '🫙', desc: '深锅，方便浸泡卤制。' },
+            { id: 't17', name: '砂锅', icon: '🏺', desc: '卤制保温，越卤越香。' }
+        ],
+        'meth8': [
+            { id: 't18', name: '平底锅', icon: '🍳', desc: '煎制不粘，省油方便。' },
+            { id: 't19', name: '油炸锅', icon: '🍤', desc: '控温油炸，口感更酥脆。' }
+        ],
+        'meth9': [
+            { id: 't20', name: '焖烧锅', icon: '🍲', desc: '密封锁温，免火焖烧。' },
+            { id: 't21', name: '铸铁锅', icon: '🍳', desc: '厚重锁热，焖烧入味。' }
+        ],
+        'meth10': [
+            { id: 't22', name: '焗炉', icon: '🔥', desc: '专业焗烤，西式风味。' },
+            { id: 't23', name: '锡纸盘', icon: '📦', desc: '密封焗烤，汁水不流失。' }
+        ]
+    };
+
+    const realRecipes = [
+        { ingredients: ['牛肉','西兰花'], method:'爆炒', name: '西兰花炒牛肉', emoji:'🥘', steps: ['牛肉逆纹切片，用生抽、淀粉、料酒腌制10分钟','西兰花切小朵，沸水焯烫30秒捞出备用','热锅冷油，放入姜片、蒜片爆香','下入牛肉快速滑炒至变色盛出','留底油炒西兰花，加盐、蚝油调味','倒回牛肉翻炒均匀，出锅即可'] },
+        { ingredients: ['虾仁','玉米'], method:'爆炒', name: '玉米炒虾仁', emoji:'🍤', steps: ['虾仁去虾线，用盐、胡椒粉抓匀腌制','玉米粒洗净沥干水分','锅中倒油，油热后放入虾仁炒至变色','加入玉米粒翻炒2分钟','加盐、少许糖调味，翻炒均匀出锅'] },
+        { ingredients: ['五花肉','青椒'], method:'爆炒', name: '川味青椒回锅肉', emoji:'🫑', steps: ['五花肉冷水下锅，加葱姜料酒煮熟捞出放凉切片','青椒去籽切丝备用','热锅不放油，下肉片煸炒出油至微卷盛出','锅中留底油，爆香姜蒜、干辣椒和豆瓣酱','放入青椒丝翻炒至断生','倒回肉片，加生抽、少许糖调味，翻炒均匀出锅'] },
+        { ingredients: ['牛肉','土豆'], method:'炖煮', name: '川味土豆烧牛肉', emoji:'🍲', steps: ['牛肉切块焯水去血沫','土豆切块备用','热油炒香八角、桂皮、干辣椒、姜蒜','放入牛肉翻炒，加生抽、老抽、豆瓣酱炒上色','加水没过食材，小火炖煮40分钟','加入土豆继续炖20分钟，加盐收汁'] },
+        { ingredients: ['鸡肉','香菇'], method:'焖烧', name: '黄焖鸡', emoji:'🍗', steps: ['鸡肉切块焯水','香菇泡发切块','爆香姜蒜、干辣椒','放入鸡肉炒至微黄','加生抽、蚝油、冰糖翻炒','加水焖煮25分钟，加盐调味'] },
+        { ingredients: ['猪肉','茄子'], method:'爆炒', name: '湘味茄子炒肉', emoji:'🍆', steps: ['茄子切条，用盐腌制5分钟挤干水分','猪肉切片腌制','热锅多放油，炒软茄子盛出','爆香姜蒜、小米辣','下肉片炒变色','倒回茄子，加盐、生抽、蚝油翻炒'] },
+        { ingredients: ['排骨','玉米'], method:'炖煮', name: '玉米排骨汤', emoji:'🦴', steps: ['排骨焯水洗净','玉米切段','将排骨、玉米、姜片放入砂锅','加水大火烧开转小火炖60分钟','出锅前加盐调味'] },
+        { ingredients: ['鱿鱼','青椒'], method:'爆炒', name: '香辣鱿鱼须', emoji:'🦑', steps: ['鱿鱼须焯水备用','青椒、洋葱切丝','爆香姜蒜、干辣椒','下鱿鱼大火爆炒','加生抽、料酒、盐、孜然粉','放入配菜翻炒均匀'] },
+        { ingredients: ['虾仁','西兰花'], method:'白灼', name: '白灼西兰花虾仁', emoji:'🥦', steps: ['西兰花切小朵，虾仁去虾线','锅中加水烧开，加少许盐和油','先焯熟西兰花捞出摆盘','再白灼虾仁1分钟捞出','淋上生抽，淋少许热油即可'] },
+        { ingredients: ['鸡肉','香菇'], method:'清蒸', name: '香菇蒸滑鸡', emoji:'🍲', steps: ['鸡肉切块，用盐、生抽、淀粉、食用油腌制15分钟','香菇切片铺在盘底','鸡肉铺在香菇上','水开上锅蒸15分钟','撒葱花出锅'] },
+        { ingredients: ['鲈鱼','葱姜'], method:'清蒸', name: '清蒸鲈鱼', emoji:'🐟', steps: ['鲈鱼处理干净，鱼身划刀','鱼身抹盐，放姜片、葱段','水开上锅蒸8分钟','倒掉腥水，捡去葱姜','重新铺葱丝，淋蒸鱼豉油，浇热油'] },
+        { ingredients: ['排骨','冬瓜'], method:'炖煮', name: '冬瓜排骨汤', emoji:'🥒', steps: ['排骨焯水','冬瓜去皮切块','排骨、姜片入锅炖40分钟','加入冬瓜炖15分钟','加盐、少许胡椒粉调味'] },
+        { ingredients: ['猪肉','红辣椒'], method:'爆炒', name: '辣椒炒肉', emoji:'🌶️', steps: ['猪肉切薄片，用少许生抽腌制','红辣椒洗净切斜段，蒜切片','热锅不放油，先下肥肉煸出油','放入瘦肉大火炒至变色盛出','留底油炒香蒜片和红辣椒','倒回肉片，加盐、生抽、蚝油翻炒均匀出锅']},
+        { ingredients: ['鲈鱼','红辣椒'], method:'清蒸', name: '剁椒鱼头', emoji:'🐟', steps: ['鱼头处理干净，劈开平铺在盘中','红辣椒切碎制成剁椒，铺在鱼头上','放上姜片、葱段，淋少许料酒','水开上锅大火蒸12分钟','倒掉盘中腥水，捡去葱姜','撒上葱花，淋蒸鱼豉油，浇上热油即可']},
+        { ingredients: ['牛肉','红辣椒'], method:'爆炒', name: '小炒黄牛肉', emoji:'🥩', steps: ['黄牛肉逆纹切薄片，用生抽、淀粉、料酒抓匀腌制','红辣椒切圈，香菜切段，姜蒜切末','热锅多放油，大火滑炒牛肉至变色立刻盛出','爆香姜蒜、小米辣，放入红辣椒炒至断生','倒回牛肉，加盐、生抽、蚝油快速翻炒','撒香菜段，大火翻炒10秒出锅']}
+    ];
+
+    function navigateTo(viewId) {
+        document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
+        document.getElementById(viewId).classList.remove('hidden');
+        
+        if (viewId === 'view-design-step1') renderFoodGrid();
+        if (viewId === 'view-design-step2') renderMethodGrid();
+        if (viewId === 'view-design-step3') renderToolGrid();
+        if (viewId === 'view-profile') loadProfileData();
+        if (viewId === 'view-edit-profile') loadEditProfile();
+        if (viewId === 'view-recipe-detail') loadRecipeDetail();
+        if (viewId === 'view-folder') loadFolderContent();
+    }
+
+    function closeModal() { document.getElementById('modal-save').classList.add('hidden'); }
+    function closeFoodModal() { document.getElementById('food-weight-modal').classList.add('hidden'); state.pendingFood = null; }
+    function closeCreateFolderModal() { document.getElementById('modal-create-folder').classList.add('hidden'); }
+    function closeDeleteConfirmModal() { document.getElementById('modal-delete-confirm').classList.add('hidden'); }
+
+    function toggleAuthMode(mode) {
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        mode === 'login' ? (loginForm.classList.remove('hidden'),registerForm.classList.add('hidden'))
+                          : (registerForm.classList.remove('hidden'),loginForm.classList.add('hidden'));
+    }
+
+    function validatePhone(phone) { return /^1[3-9]\d{9}$/.test(phone); }
+    function validatePassword(password) { return password.length >= 6; }
+
+    function handleRegister() {
+        const phone = document.getElementById('reg-phone').value;
+        const pass = document.getElementById('reg-pass').value;
+        if (!validatePhone(phone)) return alert('手机号格式错误');
+        if (!validatePassword(pass)) return alert('密码至少6位');
+        const users = JSON.parse(localStorage.getItem('users')||'[]');
+        if (users.some(u=>u.phone===phone)) return alert('已注册');
+        users.push({phone,password:pass,id:'UID'+Date.now(),name:'用户'+phone.slice(-4),avatar:'https://via.placeholder.com/80',recipes:[], folders: []});
+        localStorage.setItem('users',JSON.stringify(users));
+        alert('注册成功');
+        toggleAuthMode('login');
+    }
+
+    function handleLogin() {
+        const phone = document.getElementById('login-phone').value;
+        const pass = document.getElementById('login-pass').value;
+        if (!validatePhone(phone)||!validatePassword(pass)) return alert('格式错误');
+        const user = JSON.parse(localStorage.getItem('users')||'[]').find(u=>u.phone===phone&&u.password===pass);
+        if (!user) return alert('账号密码错误');
+        state.currentUser = user;
+        navigateTo('view-home');
+        if (document.getElementById('remember-me').checked) localStorage.setItem('lastUser',JSON.stringify({phone,pass}));
+    }
+
+    function logout() { state.currentUser=null; navigateTo('view-auth'); }
+
+    function loadEditProfile(){
+        document.getElementById('edit-avatar').src = state.currentUser.avatar;
+        document.getElementById('edit-name').value = state.currentUser.name;
+    }
+
+    function changeAvatarFromEdit() {
+        const i = document.createElement('input');
+        i.type = 'file';
+        i.accept = 'image/*';
+        i.onchange = e => {
+            const r = new FileReader();
+            r.onload = ev => {
+                const avatarData = ev.target.result;
+                state.currentUser.avatar = avatarData;
+                document.getElementById('edit-avatar').src = avatarData;
+                document.getElementById('user-avatar').src = avatarData;
+                
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const idx = users.findIndex(u => u.phone === state.currentUser.phone);
+                if (idx !== -1) {
+                    users[idx].avatar = avatarData;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+            };
+            r.readAsDataURL(e.target.files[0]);
+        };
+        i.click();
+    }
+
+    function saveUserProfile() {
+        const newName = document.getElementById('edit-name').value.trim();
+        if(!newName) return alert('请输入昵称');
+        state.currentUser.name = newName;
+        const users = JSON.parse(localStorage.getItem('users')||'[]');
+        const idx = users.findIndex(u=>u.phone === state.currentUser.phone);
+        users[idx] = {...state.currentUser};
+        localStorage.setItem('users',JSON.stringify(users));
+        alert('保存成功！');
+        navigateTo('view-profile');
+    }
+
+    function renderFoodGrid() {
+        const meat = document.getElementById('meat-grid');
+        const fish = document.getElementById('fish-grid');
+        const veg = document.getElementById('veg-grid');
+        const mush = document.getElementById('mush-grid');
+        meat.innerHTML = fish.innerHTML = veg.innerHTML = mush.innerHTML = '';
+
+        foods.forEach(f=>{
+            const el=document.createElement('div');
+            el.className=`food-item ${f.type} glass`;
+            el.innerHTML=`<div class="food-icon">${f.icon}</div><div class="food-name">${f.name}</div>`;
+            el.onclick = () => openFoodModal(f);
+            
+            if(f.type === 'meat') meat.appendChild(el);
+            else if(f.type === 'fish') fish.appendChild(el);
+            else if(f.type === 'veg') veg.appendChild(el);
+            else if(f.type === 'mush') mush.appendChild(el);
+        });
+    }
+
+    function openFoodModal(food) {
+        if (isFoodInCart(food.id)) { alert('已在购物篮'); return; }
+        state.pendingFood = food;
+        document.getElementById('food-modal-title').textContent = `设置【${food.name}】重量`;
+        document.getElementById('food-weight-input').value = 100;
+        document.getElementById('food-weight-modal').classList.remove('hidden');
+    }
+
+    function confirmAddFood() {
+        if (!state.pendingFood) return closeFoodModal();
+        const weight = parseInt(document.getElementById('food-weight-input').value);
+        if (isNaN(weight) || weight <= 0) { alert('请输入有效重量'); return; }
+        state.cart.push({ ...state.pendingFood, weight });
+        updateCartDisplay();
+        
+        const t = document.createElement('div');
+        t.textContent = state.pendingFood.icon;
+        t.style = 'position:fixed;left:50%;top:50%;font-size:30px;z-index:999';
+        t.classList.add('falling');
+        document.body.appendChild(t);
+        setTimeout(() => document.body.removeChild(t), 800);
+        
+        closeFoodModal();
+    }
+
+    function isFoodInCart(id) {return state.cart.some(i=>i.id===id);}
+    function updateCartDisplay() {
+        const c=document.getElementById('cart-items'); c.innerHTML='';
+        state.cart.forEach((it, idx) => {
+            const e = document.createElement('div');
+            e.className = 'cart-item glass';
+            e.innerHTML = `${it.icon}<small>${it.weight}g</small>`;
+            e.onclick = () => {
+                const w = prompt('修改重量(g):', it.weight);
+                if (w && !isNaN(w) && w > 0) { state.cart[idx].weight = +w; updateCartDisplay(); }
+            };
+            c.appendChild(e);
+        });
+    }
+
+    function clearCart() {if(confirm('确定清空？')){state.cart=[];updateCartDisplay();}}
+    function confirmExitStep1() {if(confirm('确定退出？')){resetAllAndGoHome();}}
+    function checkSaveBeforeExit() {
+        if (!state.generatedRecipe) { resetAllAndGoHome(); return; }
+        if (confirm('是否保存食谱？')) { openSaveModal(); } else { resetAllAndGoHome(); }
+    }
+    function resetAllAndGoHome() {
+        state.cart = []; state.selectedMethod = null; state.selectedTool = null; state.generatedRecipe = null;
+        navigateTo('view-home');
+    }
+    
+    function finishStep1() {if(state.cart.length===0)return alert('请选食材');navigateTo('view-design-step2');}
+    
+    function renderMethodGrid() {
+        const g=document.getElementById('method-grid');g.innerHTML='';
+        methods.forEach(m=>{
+            const i=document.createElement('div');i.className='method-item glass';
+            i.innerHTML=`<div style="font-size:40px;">${m.icon}</div><h4>${m.name}</h4>`;
+            i.onclick=()=>{state.selectedMethod=m;document.querySelectorAll('.method-item').forEach(x=>x.classList.remove('selected'));i.classList.add('selected');document.getElementById('method-info').textContent=m.desc;};
+            g.appendChild(i);
+        });
+    }
+    function finishStep2() {if(!state.selectedMethod)return alert('请选方法');navigateTo('view-design-step3');}
+    
+    function renderToolGrid() {
+        const g=document.getElementById('tool-grid');g.innerHTML='';
+        tools[state.selectedMethod.id].forEach(t=>{
+            const i=document.createElement('div');i.className='tool-item glass';
+            i.innerHTML=`<div style="font-size:40px;">${t.icon}</div><h4>${t.name}</h4>`;
+            i.onclick=()=>{state.selectedTool=t;document.querySelectorAll('.tool-item').forEach(x=>x.classList.remove('selected'));i.classList.add('selected');document.getElementById('tool-info').textContent=t.desc;};
+            g.appendChild(i);
+        });
+    }
+
+    function startCooking() {
+        if(!state.selectedTool)return alert('请选工具');
+        navigateTo('view-ai-loading');
+        setTimeout(generateRealRecipe,1500);
+    }
+
+    function getNutrition(ingredients){
+        let totalWeight = ingredients.reduce((s, i) => s + i.weight, 0);
+        let hasMeat = ingredients.some(i=>i.type==='meat'||i.type==='fish');
+        let hasVeg = ingredients.some(i=>i.type==='veg'||i.type==='mush');
+        let text = '';
+        if(hasMeat) text += '🥩 蛋白质：丰富\n';
+        if(hasVeg) text += '🥦 维生素：充足\n';
+        text += '⚖️ 营养均衡，适合日常食用';
+        return { text, totalWeight };
+    }
+
+    function generateRealRecipe() {
+        const names = state.cart.map(i => i.name);
+        const method = state.selectedMethod.name;
+        const toolName = state.selectedTool.name;
+        const { text: nutrition, totalWeight } = getNutrition(state.cart);
+        const mainIngredient = state.cart.slice().sort((a, b) => b.weight - a.weight)[0];
+
+        let matches = realRecipes.filter(r => {
+            return r.method === method && r.ingredients.every(ing => names.includes(ing));
+        });
+        
+        let match = matches.length > 0 ? matches[0] : {
+            name: `${names.join('')}${method}料理`, emoji:'🍽️',
+            steps: [`食材洗净切配`,`用${toolName}${method}`,`加入调料调味`,`熟透出锅`]
+        };
+
+        state.generatedRecipe = {
+            id: Date.now().toString(),
+            name: match.name,
+            emoji: match.emoji,
+            steps: match.steps,
+            ingredients: state.cart,
+            method: method,
+            tool: toolName,
+            timestamp: new Date().toISOString()
+        };
+        
+        document.getElementById('result-name').textContent = match.name;
+        document.getElementById('result-food-emoji').textContent = match.emoji || '🍽️';
+        document.getElementById('result-emojis').innerHTML = `总重 ${totalWeight}g | 主料 ${mainIngredient.name}`;
+        document.getElementById('nutrient-info').innerHTML = `<strong>食材清单</strong><br>${state.cart.map(i=>`${i.icon}${i.name} ${i.weight}g`).join('<br>')}<br><br>${getNutrition(state.cart).text}`;
+        document.getElementById('result-steps').innerHTML = match.steps.map((s,i)=>`<li>步骤${i+1}：${s}</li>`).join('');
+        navigateTo('view-result');
+    }
+
+    function openSaveModal() {
+        document.getElementById('modal-save').classList.remove('hidden');
+        loadFoldersForSelect();
+    }
+    
+    function loadFoldersForSelect() {
+        const select = document.getElementById('folder-select');
+        select.innerHTML = '<option value="">选择现有文件夹</option>';
+        
+        if (state.currentUser.folders && state.currentUser.folders.length > 0) {
+            state.currentUser.folders.forEach(folder => {
+                const option = document.createElement('option');
+                option.value = folder.id;
+                option.textContent = folder.name;
+                select.appendChild(option);
+            });
+        }
+    }
+    
+    function saveRecipe() {
+        const folderSelect = document.getElementById('folder-select');
+        const newMenuName = document.getElementById('new-menu-name').value.trim();
+        const selectedFolderId = folderSelect.value;
+        
+        if (!newMenuName) {
+            alert('请输入食谱名称');
+            return;
+        }
+        
+        const recipe = {
+            id: Date.now().toString(),
+            name: newMenuName,
+            ...state.generatedRecipe,
+            timestamp: new Date().toISOString()
+        };
+        
+        if (selectedFolderId) {
+            const folder = state.currentUser.folders.find(f => f.id === selectedFolderId);
+            if (folder) {
+                folder.recipes = folder.recipes || [];
+                folder.recipes.push(recipe);
+            }
+        } else {
+            state.currentUser.recipes = state.currentUser.recipes || [];
+            state.currentUser.recipes.push(recipe);
+        }
+        
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const userIndex = users.findIndex(u => u.phone === state.currentUser.phone);
+        if (userIndex !== -1) {
+            users[userIndex] = state.currentUser;
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+        
+        closeModal();
+        alert('保存成功');
+        resetAllAndGoHome();
+    }
+
+    function loadProfileData() {
+        if(!state.currentUser) return;
+        
+        document.getElementById('user-avatar').src = state.currentUser.avatar;
+        document.getElementById('user-name-display').textContent = state.currentUser.name;
+        document.getElementById('user-id-display').textContent = `ID: ${state.currentUser.id}`;
+        
+        const foldersList = document.getElementById('folders-list');
+        foldersList.innerHTML = '';
+        
+        if (state.currentUser.recipes && state.currentUser.recipes.length > 0) {
+            const rootFolder = document.createElement('div');
+            rootFolder.className = 'folder-item';
+            rootFolder.innerHTML = `
+                <div>
+                    <strong>我的收藏</strong> (${state.currentUser.recipes.length}个)
+                </div>
+                <button onclick="viewFolder(null)">查看</button>
+            `;
+            foldersList.appendChild(rootFolder);
+        }
+        
+        if (state.currentUser.folders && state.currentUser.folders.length > 0) {
+            state.currentUser.folders.forEach(folder => {
+                const folderItem = document.createElement('div');
+                folderItem.className = 'folder-item';
+                folderItem.innerHTML = `
+                    <div>
+                        <strong>${folder.name}</strong> (${folder.recipes ? folder.recipes.length : 0}个)
+                    </div>
+                    <div>
+                        <button onclick="viewFolder('${folder.id}')" style="margin-right: 5px;">查看</button>
+                        <button onclick="deleteFolder('${folder.id}')" style="background: #ff6b6b;">删除</button>
+                    </div>
+                `;
+                foldersList.appendChild(folderItem);
+            });
+        }
+        
+        if ((!state.currentUser.recipes || state.currentUser.recipes.length === 0) && 
+            (!state.currentUser.folders || state.currentUser.folders.length === 0)) {
+            foldersList.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">还没有食谱或文件夹，快去创作吧！</p>';
+        }
+    }
+    
+    function viewFolder(folderId) {
+        state.currentFolderId = folderId;
+        navigateTo('view-folder');
+    }
+    
+    function loadFolderContent() {
+        const folderTitle = document.getElementById('folder-title');
+        const folderCount = document.getElementById('folder-count');
+        const recipeList = document.getElementById('folder-recipes-list');
+        
+        let recipes = [];
+        let title = '';
+        
+        if (state.currentFolderId === null) {
+            title = '我的收藏';
+            recipes = state.currentUser.recipes || [];
+        } else {
+            const folder = state.currentUser.folders.find(f => f.id === state.currentFolderId);
+            title = folder?.name || '文件夹';
+            recipes = folder?.recipes || [];
+        }
+        
+        folderTitle.textContent = title;
+        folderCount.textContent = `共 ${recipes.length} 个食谱`;
+        
+        if (recipes.length > 0) {
+            recipeList.innerHTML = recipes.map(recipe => `
+                <div class="recipe-in-folder">
+                    <span>${recipe.emoji || '🍽️'} ${recipe.name}</span>
+                    <button onclick="viewRecipe('${recipe.id}')">查看</button>
+                </div>
+            `).join('');
+        } else {
+            recipeList.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">此文件夹暂无食谱</p>';
+        }
+    }
+    
+    function viewRecipe(recipeId) {
+        let recipe = null;
+        
+        if (state.currentFolderId) {
+            const folder = state.currentUser.folders.find(f => f.id === state.currentFolderId);
+            if (folder && folder.recipes) {
+                recipe = folder.recipes.find(r => r.id === recipeId);
+            }
+        } else {
+            recipe = (state.currentUser.recipes || []).find(r => r.id === recipeId);
+        }
+        
+        if (recipe) {
+            state.currentRecipeId = recipeId;
+            state.generatedRecipe = recipe;
+            navigateTo('view-recipe-detail');
+        } else {
+            alert('未找到该食谱');
+        }
+    }
+    
+    function loadRecipeDetail() {
+        if (!state.generatedRecipe) return;
+        
+        document.getElementById('detail-name').textContent = state.generatedRecipe.name;
+        document.getElementById('detail-food-emoji').textContent = state.generatedRecipe.emoji || '🍽️';
+        document.getElementById('detail-info').textContent = `创建于 ${new Date(state.generatedRecipe.timestamp).toLocaleDateString()}`;
+        
+        const ingredientsText = state.generatedRecipe.ingredients 
+            ? state.generatedRecipe.ingredients.map(i => `${i.icon}${i.name} ${i.weight}g`).join('<br>')
+            : '未知食材';
+        
+        document.getElementById('detail-nutrient-info').innerHTML = `
+            <strong>📋 食材清单</strong><br>
+            ${ingredientsText}
+        `;
+        
+        const stepsHtml = state.generatedRecipe.steps 
+            ? state.generatedRecipe.steps.map((s, i) => `<li>步骤${i+1}：${s}</li>`).join('')
+            : '<li>暂无步骤信息</li>';
+        
+        document.getElementById('detail-steps').innerHTML = stepsHtml;
+    }
+    
+    function deleteRecipe() {
+        if (!state.currentRecipeId) return;
+        document.getElementById('modal-delete-confirm').classList.remove('hidden');
+    }
+    
+    function confirmDeleteRecipe() {
+        if (!state.currentRecipeId) return;
+        
+        if (state.currentFolderId) {
+            const folder = state.currentUser.folders.find(f => f.id === state.currentFolderId);
+            if (folder && folder.recipes) {
+                folder.recipes = folder.recipes.filter(r => r.id !== state.currentRecipeId);
+            }
+        } else {
+            state.currentUser.recipes = (state.currentUser.recipes || []).filter(r => r.id !== state.currentRecipeId);
+        }
+        
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const userIndex = users.findIndex(u => u.phone === state.currentUser.phone);
+        if (userIndex !== -1) {
+            users[userIndex] = state.currentUser;
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+        
+        closeDeleteConfirmModal();
+        navigateTo('view-folder');
+        alert('食谱已删除');
+    }
+    
+    function createNewFolder() {
+        document.getElementById('modal-create-folder').classList.remove('hidden');
+    }
+    
+    function createFolder() {
+        const folderName = document.getElementById('folder-name-input').value.trim();
+        if (!folderName) {
+            alert('请输入文件夹名称');
+            return;
+        }
+        
+        const newFolder = {
+            id: 'folder_' + Date.now().toString(),
+            name: folderName,
+            recipes: [],
+            createdAt: new Date().toISOString()
+        };
+        
+        state.currentUser.folders = state.currentUser.folders || [];
+        state.currentUser.folders.push(newFolder);
+        
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const userIndex = users.findIndex(u => u.phone === state.currentUser.phone);
+        if (userIndex !== -1) {
+            users[userIndex] = state.currentUser;
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+        
+        closeCreateFolderModal();
+        document.getElementById('folder-name-input').value = '';
+        loadProfileData();
+        alert('文件夹创建成功');
+    }
+    
+    function deleteFolder(folderId) {
+        if (!confirm('确定要删除此文件夹吗？文件夹内的所有食谱也将被删除。')) return;
+        
+        state.currentUser.folders = state.currentUser.folders.filter(f => f.id !== folderId);
+        
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const userIndex = users.findIndex(u => u.phone === state.currentUser.phone);
+        if (userIndex !== -1) {
+            users[userIndex] = state.currentUser;
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+        
+        loadProfileData();
+        alert('文件夹已删除');
+    }
+
+    window.onload=()=>{
+        const last=JSON.parse(localStorage.getItem('lastUser')||'null');
+        if(last){document.getElementById('login-phone').value=last.phone;document.getElementById('login-pass').value=last.pass;}
+    };
+</script>
+</body>
+</html>
