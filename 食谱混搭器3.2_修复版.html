@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食谱混搭器</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif}
+
+body{
+background:linear-gradient(135deg,#fff8f2,#fff0f5,#f4fff4);
+min-height:100vh;
+overflow-x:hidden;
+color:#333;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:20px;
+}
+
+.header{
+text-align:center;
+padding:30px 0;
+}
+
+.logo{
+font-size:80px;
+animation:float 3s infinite ease-in-out;
+}
+
+@keyframes float{
+50%{transform:translateY(-10px)}
+}
+
+.title{
+font-size:48px;
+font-weight:900;
+background:linear-gradient(90deg,#ff7fa8,#79ca7d);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.subtitle{
+margin-top:10px;
+opacity:.7;
+}
+
+.card{
+background:rgba(255,255,255,.75);
+backdrop-filter:blur(12px);
+padding:28px;
+border-radius:34px;
+box-shadow:0 10px 40px rgba(0,0,0,.08);
+margin-top:20px;
+}
+
+.section-title{
+font-size:28px;
+font-weight:800;
+margin-bottom:20px;
+}
+
+.category{
+margin-top:28px;
+}
+
+.category-title{
+font-size:22px;
+font-weight:700;
+margin-bottom:14px;
+}
+
+.food-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+gap:14px;
+}
+
+.food{
+background:white;
+border-radius:24px;
+padding:14px;
+text-align:center;
+cursor:pointer;
+transition:.25s;
+}
+
+.food:hover{
+transform:translateY(-5px);
+}
+
+.food.active{
+background:linear-gradient(135deg,#7fd485,#98ea9d);
+color:white;
+}
+
+.food-emoji{
+font-size:42px;
+}
+
+.food-name{
+font-size:14px;
+font-weight:700;
+margin-top:8px;
+}
+
+.weight{
+width:100%;
+margin-top:10px;
+}
+
+.methods,.tools{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+gap:14px;
+}
+
+.method,.tool{
+background:white;
+border-radius:24px;
+padding:20px;
+text-align:center;
+cursor:pointer;
+transition:.25s;
+}
+
+.method.active,.tool.active{
+background:linear-gradient(135deg,#ff89af,#ffb1c8);
+color:white;
+}
+
+.big{
+font-size:40px;
+margin-bottom:10px;
+}
+
+button{
+border:none;
+cursor:pointer;
+transition:.25s;
+}
+
+.buttons{
+display:flex;
+gap:14px;
+margin-top:30px;
+}
+
+.random,.create{
+flex:1;
+padding:18px;
+border-radius:22px;
+font-size:16px;
+font-weight:700;
+color:white;
+}
+
+.random{
+background:linear-gradient(135deg,#79ca7d,#9ce8a0);
+}
+
+.create{
+background:linear-gradient(135deg,#ff7ea8,#ff9cbe);
+}
+
+.result-page{
+display:none;
+position:fixed;
+inset:0;
+background:linear-gradient(135deg,#fff7f1,#fff0f8);
+overflow-y:auto;
+padding:30px;
+z-index:100;
+}
+
+.result-card{
+max-width:760px;
+margin:auto;
+background:white;
+border-radius:36px;
+padding:36px;
+box-shadow:0 10px 40px rgba(0,0,0,.1);
+animation:pop .5s ease;
+}
+
+@keyframes pop{
+from{opacity:0;transform:scale(.85)}
+to{opacity:1;transform:scale(1)}
+}
+
+.result-emoji{
+font-size:120px;
+text-align:center;
+}
+
+.result-name{
+font-size:42px;
+font-weight:900;
+text-align:center;
+margin-top:12px;
+}
+
+.tags{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:10px;
+margin-top:20px;
+}
+
+.tag{
+padding:10px 16px;
+background:#f5f5f5;
+border-radius:999px;
+font-size:13px;
+font-weight:700;
+}
+
+.box{
+margin-top:22px;
+background:#fafafa;
+padding:22px;
+border-radius:24px;
+}
+
+.box li{
+margin:10px 0;
+line-height:1.7;
+}
+
+.close-btn{
+width:100%;
+margin-top:24px;
+padding:18px;
+border-radius:22px;
+background:linear-gradient(135deg,#ff7ea8,#ff9cbe);
+color:white;
+font-size:16px;
+font-weight:700;
+}
+
+.loading-page{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(255,255,255,.92);
+backdrop-filter:blur(10px);
+z-index:200;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+}
+
+.loading-page.show{
+display:flex;
+}
+
+.loading-emoji{
+font-size:100px;
+animation:spin 2s linear infinite;
+}
+
+@keyframes spin{
+from{transform:rotate(0)}
+to{transform:rotate(360deg)}
+}
+
+.loading-text{
+margin-top:20px;
+font-size:20px;
+font-weight:700;
+animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+50%{opacity:.4}
+}
+
+.hidden{
+display:none;
+}
+
+@media(max-width:700px){
+.food-grid{
+grid-template-columns:repeat(2,1fr);
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<div class="logo">🍳</div>
+<div class="title">食谱混搭器 3.1</div>
+<div class="subtitle">AI 美食创作小游戏 · 梦幻料理实验室</div>
+</div>
+
+<div class="card">
+
+<div class="section-title">🥬 选择食材</div>
+
+<div id="foodContainer"></div>
+
+<div class="section-title" style="margin-top:40px">🔥 选择烹饪方式</div>
+
+<div class="methods" id="methodContainer"></div>
+
+<div id="toolSection" class="hidden">
+
+<div class="section-title" style="margin-top:40px">🍳 对应烹饪工具</div>
+
+<div class="tools" id="toolContainer"></div>
+
+</div>
+
+<div class="buttons">
+<button class="random" onclick="randomSelect()">🎲 一键随机</button>
+<button class="create" onclick="createRecipe()">✨ 生成食谱</button>
+</div>
+
+</div>
+
+</div>
+
+<div class="loading-page" id="loadingPage">
+<div class="loading-emoji">🍲</div>
+<div class="loading-text" id="loadingText">AI 正在爆炒灵魂香气...</div>
+</div>
+
+<div class="result-page" id="resultPage">
+
+<div class="result-card">
+
+<div class="result-emoji" id="resultEmoji">🍜</div>
+
+<div class="result-name" id="resultName"></div>
+
+<div class="tags" id="tags"></div>
+
+<div class="box">
+<h3>🥘 食材重量</h3>
+<div id="ingredients"></div>
+</div>
+
+<div class="box">
+<h3>👨‍🍳 AI 烹饪步骤</h3>
+<ul id="steps"></ul>
+</div>
+
+<div class="box" id="comment"></div>
+
+<div class="box">
+<h3>🥗 推荐搭配</h3>
+<div id="recommend"></div>
+</div>
+
+<div class="box">
+<h3>📊 营养成分分析</h3>
+<div id="nutrition"></div>
+</div>
+
+
+<button class="close-btn" onclick="closePage()">返回主页</button>
+
+</div>
+
+</div>
+
+<script>
+
+const categories = {
+"🥩 荤菜":[
+{name:"和牛",emoji:"🥩"},
+{name:"鸡腿",emoji:"🍗"},
+{name:"排骨",emoji:"🍖"},
+{name:"香肠",emoji:"🌭"},
+{name:"培根",emoji:"🥓"},
+{name:"鸭肉",emoji:"🦆"}
+],
+
+"🥬 素菜":[
+{name:"西兰花",emoji:"🥦"},
+{name:"番茄",emoji:"🍅"},
+{name:"玉米",emoji:"🌽"},
+{name:"南瓜",emoji:"🎃"},
+{name:"菠菜",emoji:"🥬"},
+{name:"茄子",emoji:"🍆"}
+],
+
+"🦞 水产":[
+{name:"龙虾",emoji:"🦞"},
+{name:"螃蟹",emoji:"🦀"},
+{name:"三文鱼",emoji:"🍣"},
+{name:"鱿鱼",emoji:"🦑"},
+{name:"生蚝",emoji:"🦪"},
+{name:"扇贝",emoji:"🐚"}
+],
+
+"🍄 菌类":[
+{name:"香菇",emoji:"🍄"},
+{name:"金针菇",emoji:"🌾"},
+{name:"白玉菇",emoji:"🤍"},
+{name:"松茸",emoji:"🌰"}
+]
+};
+
+const methodTools = {
+"爆炒":[
+{emoji:"🍳",name:"平底锅"},
+{emoji:"🔥",name:"猛火锅"}
+],
+
+"烧烤":[
+{emoji:"🍢",name:"烤架"},
+{emoji:"🔥",name:"炭火炉"}
+],
+
+"炖煮":[
+{emoji:"🍲",name:"高压锅"},
+{emoji:"🥘",name:"砂锅"}
+],
+
+"焖烧":[
+{emoji:"🥘",name:"焖锅"},
+{emoji:"🍲",name:"深炖锅"}
+],
+
+"焗烤":[
+{emoji:"🧀",name:"烤箱"},
+{emoji:"🔥",name:"焗炉"}
+],
+
+"凉拌":[
+{emoji:"🥣",name:"搅拌碗"},
+{emoji:"❄️",name:"冰镇盘"}
+],
+
+"咖喱":[
+{emoji:"🍛",name:"咖喱锅"},
+{emoji:"🔥",name:"香料锅"}
+],
+
+"烟熏":[
+{emoji:"🥓",name:"烟熏炉"},
+{emoji:"🔥",name:"炭烤架"}
+]
+};
+
+const methods = [
+{emoji:"🔥",name:"爆炒"},
+{emoji:"🍢",name:"烧烤"},
+{emoji:"🍲",name:"炖煮"},
+{emoji:"🥘",name:"焖烧"},
+{emoji:"🧀",name:"焗烤"},
+{emoji:"❄️",name:"凉拌"},
+{emoji:"🍛",name:"咖喱"},
+{emoji:"🥓",name:"烟熏"}
+];
+
+const resultEmojis = ["🍜","🍲","🍛","🍱","🍣","🍤","🥘","🍕","🌮"];
+
+const recipes = [
+"黄金芝士爆浆锅",
+"川香炭烤盛宴",
+"秘制深夜料理",
+"海鲜风暴拼盘",
+"灵魂奶油炖锅",
+"火焰韩式料理",
+"日式鲜香卷",
+"法式香煎拼盘",
+"黑金烟熏盛宴",
+"芝士焗烤海鲜盘"
+];
+
+const loadingTexts = [
+"AI 正在爆炒灵魂香气...",
+"AI 正在计算最佳火候...",
+"AI 正在摆盘中...",
+"AI 正在调配秘制酱汁...",
+"AI 正在召唤米其林之魂..."
+];
+
+
+const pairings = [
+"🥤 冰镇可乐 + 🍟 薯条",
+"🍷 红酒 + 🧀 芝士拼盘",
+"🍵 日式抹茶 + 🍡 团子",
+"🥛 奶昔 + 🥨 烤面包",
+"🍺 精酿啤酒 + 🍢 烧烤",
+"🧋 珍珠奶茶 + 🍰 小蛋糕"
+];
+
+const nutritionTips = [
+"蛋白质丰富",
+"富含膳食纤维",
+"维生素含量较高",
+"脂肪含量适中",
+"碳水化合物充足",
+"矿物质较丰富"
+];
+
+const comments = [
+"这道料理拥有极强的视觉冲击力，非常适合深夜放毒。",
+"AI 判断这是一道高人气潜力料理。",
+"香气层次丰富，建议趁热享用。",
+"浓郁口感与清爽配菜达成了完美平衡。",
+"这是一道具有餐厅级卖相的高级料理。"
+];
+
+const selectedFoods = [];
+let selectedMethod = "";
+let selectedTool = "";
+
+const foodContainer = document.getElementById("foodContainer");
+
+Object.keys(categories).forEach(category=>{
+
+const wrap = document.createElement("div");
+
+wrap.className = "category";
+
+wrap.innerHTML = `
+<div class="category-title">${category}</div>
+
+<div class="food-grid">
+
+${categories[category].map(food=>`
+
+<div class="food" onclick="toggleFood(this,'${food.name}','${food.emoji}')">
+
+<div class="food-emoji">${food.emoji}</div>
+
+<div class="food-name">${food.name}</div>
+
+<input type="range" min="50" max="1000" value="200" class="weight">
+
+<div class="food-name">重量：<span>200</span>g</div>
+
+</div>
+
+`).join("")}
+
+</div>
+`;
+
+foodContainer.appendChild(wrap);
+
+});
+
+document.querySelectorAll(".weight").forEach(slider=>{
+slider.oninput = ()=>{
+slider.nextElementSibling.querySelector("span").innerText = slider.value;
+};
+});
+
+function toggleFood(el,name,emoji){
+
+el.classList.toggle("active");
+
+const weight = el.querySelector(".weight").value;
+
+const exists = selectedFoods.find(v=>v.name===name);
+
+if(exists){
+selectedFoods.splice(selectedFoods.indexOf(exists),1);
+}else{
+selectedFoods.push({name,emoji,weight});
+}
+}
+
+const methodContainer = document.getElementById("methodContainer");
+
+methods.forEach(m=>{
+
+const div = document.createElement("div");
+
+div.className = "method";
+
+div.innerHTML = `
+<div class="big">${m.emoji}</div>
+<div>${m.name}</div>
+`;
+
+div.onclick = ()=>{
+
+document.querySelectorAll(".method").forEach(v=>v.classList.remove("active"));
+
+div.classList.add("active");
+
+selectedMethod = m.name;
+
+renderTools(m.name);
+
+};
+
+methodContainer.appendChild(div);
+
+});
+
+function renderTools(method){
+
+selectedTool = "";
+
+document.getElementById("toolSection").classList.remove("hidden");
+
+const toolContainer = document.getElementById("toolContainer");
+
+toolContainer.innerHTML = "";
+
+methodTools[method].forEach(tool=>{
+
+const div = document.createElement("div");
+
+div.className = "tool";
+
+div.innerHTML = `
+<div class="big">${tool.emoji}</div>
+<div>${tool.name}</div>
+`;
+
+div.onclick = ()=>{
+
+document.querySelectorAll(".tool").forEach(v=>v.classList.remove("active"));
+
+div.classList.add("active");
+
+selectedTool = tool.name;
+
+};
+
+toolContainer.appendChild(div);
+
+});
+}
+
+function randomSelect(){
+
+selectedFoods.length = 0;
+
+document.querySelectorAll(".food").forEach(v=>v.classList.remove("active"));
+
+const allFoods = [];
+
+Object.values(categories).forEach(arr=>{
+arr.forEach(v=>allFoods.push(v));
+});
+
+allFoods.sort(()=>Math.random()-0.5).slice(0,5).forEach(food=>{
+
+document.querySelectorAll(".food").forEach(card=>{
+
+if(card.innerText.includes(food.name)){
+
+card.classList.add("active");
+
+selectedFoods.push({
+name:food.name,
+emoji:food.emoji,
+weight:card.querySelector(".weight").value
+});
+
+}
+
+});
+
+});
+
+}
+
+function createRecipe(){
+
+if(selectedFoods.length===0){
+alert("请先选择食材");
+return;
+}
+
+if(!selectedMethod){
+alert("请选择烹饪方式");
+return;
+}
+
+if(!selectedTool){
+alert("请选择烹饪工具");
+return;
+}
+
+const loadingPage = document.getElementById("loadingPage");
+
+loadingPage.classList.add("show");
+
+let i = 0;
+
+const interval = setInterval(()=>{
+document.getElementById("loadingText").innerText =
+loadingTexts[i % loadingTexts.length];
+i++;
+},700);
+
+setTimeout(()=>{
+
+clearInterval(interval);
+
+loadingPage.classList.remove("show");
+
+showResult();
+
+},3500);
+
+}
+
+function showResult(){
+
+document.getElementById("resultPage").style.display = "block";
+
+document.getElementById("resultEmoji").innerText =
+resultEmojis[Math.floor(Math.random()*resultEmojis.length)];
+
+document.getElementById("resultName").innerText =
+recipes[Math.floor(Math.random()*recipes.length)];
+
+document.getElementById("tags").innerHTML = `
+<div class="tag">${selectedMethod}</div>
+<div class="tag">${selectedTool}</div>
+<div class="tag">AI推荐</div>
+<div class="tag">高颜值</div>
+`;
+
+document.getElementById("ingredients").innerHTML =
+selectedFoods.map(v=>`
+<div style="margin:10px 0">
+${v.emoji} ${v.name} · ${v.weight}g
+</div>
+`).join("");
+
+const steps = [
+"将所有食材清洗并处理备用。",
+`使用 ${selectedTool} 进行预热。`,
+`采用 ${selectedMethod} 技法开始烹饪。`,
+"加入 AI 推荐秘制酱料提升香气。",
+"控制火候后完成高级摆盘。"
+];
+
+document.getElementById("steps").innerHTML =
+steps.map(v=>`<li>${v}</li>`).join("");
+
+document.getElementById("comment").innerHTML = `
+<h3>🤖 AI 美食点评</h3>
+
+<div style="margin-top:12px;line-height:1.8">
+${comments[Math.floor(Math.random()*comments.length)]}
+</div>
+
+<div style="margin-top:14px">
+⭐ 难度：${"⭐".repeat(Math.floor(Math.random()*3)+2)}
+</div>
+
+<div style="margin-top:8px">
+⏱️ 时间：${10+Math.floor(Math.random()*40)} 分钟
+</div>
+`;
+
+document.getElementById("recommend").innerHTML = `
+<div style="line-height:2">
+${pairings[Math.floor(Math.random()*pairings.length)]}<br>
+🥗 推荐搭配清爽蔬菜沙拉<br>
+🍮 推荐饭后甜点提升幸福感
+</div>
+`;
+
+const protein = 20 + Math.floor(Math.random()*60);
+const fat = 10 + Math.floor(Math.random()*40);
+const carbs = 15 + Math.floor(Math.random()*80);
+const vitamins = 10 + Math.floor(Math.random()*90);
+
+document.getElementById("nutrition").innerHTML = `
+<div style="line-height:2">
+💪 蛋白质：${protein}g<br>
+🧈 脂肪：${fat}g<br>
+🍚 碳水化合物：${carbs}g<br>
+🥦 维生素指数：${vitamins}%<br><br>
+✨ AI 分析：${nutritionTips[Math.floor(Math.random()*nutritionTips.length)]}
+</div>
+`;
+
+}
+
+function closePage(){
+document.getElementById("resultPage").style.display = "none";
+}
+
+</script>
+
+</body>
+</html>
