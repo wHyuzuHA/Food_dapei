@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>食谱混搭器</title>
+<title>食谱混搭器 3.14</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif}
@@ -297,7 +297,7 @@ grid-template-columns:repeat(2,1fr);
 
 <div class="header">
 <div class="logo">🍳</div>
-<div class="title">食谱混搭器 3.1</div>
+<div class="title">食谱混搭器 3.14</div>
 <div class="subtitle">AI 美食创作小游戏 · 梦幻料理实验室</div>
 </div>
 
@@ -319,7 +319,10 @@ grid-template-columns:repeat(2,1fr);
 
 </div>
 
+
 <div class="buttons">
+<button class="random" onclick="openMyRecipes()">📖 个人菜谱</button>
+
 <button class="random" onclick="randomSelect()">🎲 一键随机</button>
 <button class="create" onclick="createRecipe()">✨ 生成食谱</button>
 </div>
@@ -366,13 +369,17 @@ grid-template-columns:repeat(2,1fr);
 </div>
 
 
+
+<button class="create" style="margin-top:16px;width:100%;padding:18px;border-radius:22px;color:white;font-weight:700;" onclick="saveRecipe()">💾 保存到个人菜谱</button>
 <button class="close-btn" onclick="closePage()">返回主页</button>
+
 
 </div>
 
 </div>
 
 <script>
+
 
 const categories = {
 "🥩 荤菜":[
@@ -381,7 +388,16 @@ const categories = {
 {name:"排骨",emoji:"🍖"},
 {name:"香肠",emoji:"🌭"},
 {name:"培根",emoji:"🥓"},
-{name:"鸭肉",emoji:"🦆"}
+{name:"鸭肉",emoji:"🦆"},
+{name:"牛腩",emoji:"🍖"},
+{name:"羊排",emoji:"🍖"},
+{name:"火腿",emoji:"🍖"},
+{name:"猪蹄",emoji:"🍖"},
+{name:"肥牛卷",emoji:"🥩"},
+{name:"鸡翅",emoji:"🍗"},
+{name:"烤鸭",emoji:"🦆"},
+{name:"牛排",emoji:"🥩"},
+{name:"午餐肉",emoji:"🥓"}
 ],
 
 "🥬 素菜":[
@@ -390,7 +406,16 @@ const categories = {
 {name:"玉米",emoji:"🌽"},
 {name:"南瓜",emoji:"🎃"},
 {name:"菠菜",emoji:"🥬"},
-{name:"茄子",emoji:"🍆"}
+{name:"茄子",emoji:"🍆"},
+{name:"胡萝卜",emoji:"🥕"},
+{name:"土豆",emoji:"🥔"},
+{name:"洋葱",emoji:"🧅"},
+{name:"黄瓜",emoji:"🥒"},
+{name:"生菜",emoji:"🥬"},
+{name:"紫甘蓝",emoji:"🥗"},
+{name:"秋葵",emoji:"🌿"},
+{name:"芦笋",emoji:"🥬"},
+{name:"莲藕",emoji:"🪷"}
 ],
 
 "🦞 水产":[
@@ -399,16 +424,57 @@ const categories = {
 {name:"三文鱼",emoji:"🍣"},
 {name:"鱿鱼",emoji:"🦑"},
 {name:"生蚝",emoji:"🦪"},
-{name:"扇贝",emoji:"🐚"}
+{name:"扇贝",emoji:"🐚"},
+{name:"金枪鱼",emoji:"🐟"},
+{name:"鳗鱼",emoji:"🍱"},
+{name:"虾仁",emoji:"🍤"},
+{name:"章鱼",emoji:"🐙"},
+{name:"海胆",emoji:"🟠"},
+{name:"鲍鱼",emoji:"🐚"},
+{name:"青口贝",emoji:"🦪"},
+{name:"鳕鱼",emoji:"🐟"},
+{name:"海参",emoji:"🌊"}
 ],
 
 "🍄 菌类":[
 {name:"香菇",emoji:"🍄"},
 {name:"金针菇",emoji:"🌾"},
 {name:"白玉菇",emoji:"🤍"},
-{name:"松茸",emoji:"🌰"}
+{name:"松茸",emoji:"🌰"},
+{name:"杏鲍菇",emoji:"🍄"},
+{name:"黑木耳",emoji:"🖤"},
+{name:"羊肚菌",emoji:"🍄"},
+{name:"鸡油菌",emoji:"🌼"},
+{name:"牛肝菌",emoji:"🤎"}
+],
+
+"🍚 主食":[
+{name:"米饭",emoji:"🍚"},
+{name:"拉面",emoji:"🍜"},
+{name:"意面",emoji:"🍝"},
+{name:"面包",emoji:"🍞"},
+{name:"披萨饼底",emoji:"🍕"},
+{name:"乌冬面",emoji:"🥢"},
+{name:"年糕",emoji:"🍡"},
+{name:"粉丝",emoji:"🍜"},
+{name:"汉堡胚",emoji:"🍔"}
+],
+
+"🧂 调味":[
+{name:"芝士",emoji:"🧀"},
+{name:"黄油",emoji:"🧈"},
+{name:"辣椒",emoji:"🌶️"},
+{name:"咖喱块",emoji:"🍛"},
+{name:"蜂蜜",emoji:"🍯"},
+{name:"柠檬",emoji:"🍋"},
+{name:"黑胡椒",emoji:"⚫"},
+{name:"迷迭香",emoji:"🌿"},
+{name:"蒜蓉",emoji:"🧄"},
+{name:"番茄酱",emoji:"🍅"},
+{name:"松露酱",emoji:"🫙"}
 ]
 };
+
 
 const methodTools = {
 "爆炒":[
@@ -449,34 +515,116 @@ const methodTools = {
 "烟熏":[
 {emoji:"🥓",name:"烟熏炉"},
 {emoji:"🔥",name:"炭烤架"}
+],
+
+"熬汤":[
+{emoji:"🍜",name:"拉面锅"},
+{emoji:"🥘",name:"汤锅"}
+],
+
+"煎制":[
+{emoji:"🍳",name:"煎锅"},
+{emoji:"🔥",name:"铁板炉"}
+],
+
+"烘焙":[
+{emoji:"🍕",name:"披萨炉"},
+{emoji:"🧀",name:"烘焙烤箱"}
 ]
 };
 
+
 const methods = [
-{emoji:"🔥",name:"爆炒"},
-{emoji:"🍢",name:"烧烤"},
-{emoji:"🍲",name:"炖煮"},
-{emoji:"🥘",name:"焖烧"},
-{emoji:"🧀",name:"焗烤"},
-{emoji:"❄️",name:"凉拌"},
-{emoji:"🍛",name:"咖喱"},
-{emoji:"🥓",name:"烟熏"}
+{emoji:"🔥",name:"爆炒",types:["dish"]},
+{emoji:"🍢",name:"烧烤",types:["dish"]},
+{emoji:"🍲",name:"炖煮",types:["dish","staple"]},
+{emoji:"🥘",name:"焖烧",types:["dish","staple"]},
+{emoji:"🧀",name:"焗烤",types:["dish","staple"]},
+{emoji:"❄️",name:"凉拌",types:["dish"]},
+{emoji:"🍛",name:"咖喱",types:["dish","staple"]},
+{emoji:"🥓",name:"烟熏",types:["dish"]},
+{emoji:"🍜",name:"熬汤",types:["staple"]},
+{emoji:"🍳",name:"煎制",types:["dish","staple"]},
+{emoji:"🍕",name:"烘焙",types:["staple"]}
 ];
+
 
 const resultEmojis = ["🍜","🍲","🍛","🍱","🍣","🍤","🥘","🍕","🌮"];
 
-const recipes = [
-"黄金芝士爆浆锅",
-"川香炭烤盛宴",
-"秘制深夜料理",
-"海鲜风暴拼盘",
-"灵魂奶油炖锅",
-"火焰韩式料理",
-"日式鲜香卷",
-"法式香煎拼盘",
+
+
+const dishRecipes = [
+"黑椒和牛拼盘",
+"火焰炭烤海鲜锅",
+"松茸奶油炖菜",
+"韩式辣酱炸鸡",
+"黄金芝士焗龙虾",
+"法式香煎鸭胸",
+"爆炒香辣双拼",
+"秘制烟熏烤肉",
+"蒜香黄油虾仁",
+"炭火羊排盛宴",
+"香辣海鲜大咖",
+"深夜治愈炖锅",
+"AI至尊豪华料理",
 "黑金烟熏盛宴",
-"芝士焗烤海鲜盘"
+"黄金南瓜浓汤"
 ];
+
+
+const smartRecipes = [
+{
+keywords:["和牛","松露酱"],
+heavy:"黑松露厚切和牛排",
+light:"轻煎和牛松露拼盘"
+},
+{
+keywords:["龙虾","芝士"],
+heavy:"黄金芝士焗龙虾",
+light:"法式芝士龙虾小食"
+},
+{
+keywords:["鸡腿","辣椒"],
+heavy:"爆辣双椒炸鸡锅",
+light:"香辣嫩鸡小串"
+},
+{
+keywords:["三文鱼"],
+heavy:"炙烤厚切三文鱼排",
+light:"日式轻盐三文鱼"
+},
+{
+keywords:["土豆","牛排"],
+heavy:"黑椒牛排土豆盛宴",
+light:"香煎牛排配薯角"
+},
+{
+keywords:["意面","虾仁"],
+heavy:"蒜香奶油海鲜意面",
+light:"轻食虾仁意面"
+},
+{
+keywords:["拉面"],
+heavy:"地狱浓汤叉烧拉面",
+light:"清爽海鲜拉面"
+},
+{
+keywords:["披萨饼底"],
+heavy:"至尊爆浆海鲜披萨",
+light:"田园轻食披萨"
+}
+];
+
+const stapleRecipes = {
+"🍚":"至尊海鲜盖饭",
+"🍜":"豚骨浓汤拉面",
+"🍝":"奶油龙虾意面",
+"🍞":"芝士爆浆吐司",
+"🍕":"炭烤至尊披萨",
+"🥢":"日式海鲜乌冬"
+};
+
+
 
 const loadingTexts = [
 "AI 正在爆炒灵魂香气...",
@@ -569,14 +717,29 @@ const exists = selectedFoods.find(v=>v.name===name);
 
 if(exists){
 selectedFoods.splice(selectedFoods.indexOf(exists),1);
+renderMethods();
 }else{
 selectedFoods.push({name,emoji,weight});
+renderMethods();
 }
 }
 
 const methodContainer = document.getElementById("methodContainer");
 
-methods.forEach(m=>{
+function renderMethods(){
+
+methodContainer.innerHTML = "";
+
+const hasStaple = selectedFoods.some(v=>
+["🍚","🍜","🍝","🍞","🍕","🥢"].includes(v.emoji)
+);
+
+methods.filter(m=>{
+if(hasStaple){
+return m.types.includes("staple");
+}
+return m.types.includes("dish");
+}).forEach(m=>{
 
 const div = document.createElement("div");
 
@@ -602,6 +765,9 @@ renderTools(m.name);
 methodContainer.appendChild(div);
 
 });
+}
+
+renderMethods();
 
 function renderTools(method){
 
@@ -642,8 +808,22 @@ toolContainer.appendChild(div);
 function randomSelect(){
 
 selectedFoods.length = 0;
+selectedMethod = "";
+selectedTool = "";
 
-document.querySelectorAll(".food").forEach(v=>v.classList.remove("active"));
+document.getElementById("toolSection").classList.add("hidden");
+
+document.querySelectorAll(".food").forEach(v=>{
+v.classList.remove("active");
+});
+
+document.querySelectorAll(".method").forEach(v=>{
+v.classList.remove("active");
+});
+
+document.querySelectorAll(".tool").forEach(v=>{
+v.classList.remove("active");
+});
 
 const allFoods = [];
 
@@ -651,18 +831,27 @@ Object.values(categories).forEach(arr=>{
 arr.forEach(v=>allFoods.push(v));
 });
 
-allFoods.sort(()=>Math.random()-0.5).slice(0,5).forEach(food=>{
+allFoods
+.sort(()=>Math.random()-0.5)
+.slice(0,Math.floor(Math.random()*4)+3)
+.forEach(food=>{
 
 document.querySelectorAll(".food").forEach(card=>{
 
 if(card.innerText.includes(food.name)){
 
+const randomWeight = Math.floor(Math.random()*900)+100;
+
 card.classList.add("active");
+
+card.querySelector(".weight").value = randomWeight;
+
+card.querySelector(".weight").nextElementSibling.querySelector("span").innerText = randomWeight;
 
 selectedFoods.push({
 name:food.name,
 emoji:food.emoji,
-weight:card.querySelector(".weight").value
+weight:randomWeight
 });
 
 }
@@ -670,6 +859,33 @@ weight:card.querySelector(".weight").value
 });
 
 });
+
+renderMethods();
+
+const availableMethods = [...document.querySelectorAll(".method")];
+
+if(availableMethods.length>0){
+
+const randomMethod =
+availableMethods[Math.floor(Math.random()*availableMethods.length)];
+
+randomMethod.click();
+
+setTimeout(()=>{
+
+const availableTools = [...document.querySelectorAll(".tool")];
+
+if(availableTools.length>0){
+
+availableTools[
+Math.floor(Math.random()*availableTools.length)
+].click();
+
+}
+
+},100);
+
+}
 
 }
 
@@ -721,8 +937,49 @@ document.getElementById("resultPage").style.display = "block";
 document.getElementById("resultEmoji").innerText =
 resultEmojis[Math.floor(Math.random()*resultEmojis.length)];
 
-document.getElementById("resultName").innerText =
-recipes[Math.floor(Math.random()*recipes.length)];
+const selectedStaple = selectedFoods.find(v=>
+["🍚","🍜","🍝","🍞","🍕","🥢"].includes(v.emoji)
+);
+
+let finalRecipeName = "";
+
+const totalWeight = selectedFoods.reduce((sum,v)=>sum+parseInt(v.weight),0);
+
+const foodNames = selectedFoods.map(v=>v.name);
+
+const matchedRecipe = smartRecipes.find(recipe=>
+recipe.keywords.every(k=>foodNames.includes(k))
+);
+
+if(matchedRecipe){
+if(totalWeight >= 1200){
+finalRecipeName = matchedRecipe.heavy;
+}else{
+finalRecipeName = matchedRecipe.light;
+}
+}else if(selectedStaple){
+
+if(totalWeight >= 1200){
+finalRecipeName = "豪华版" + stapleRecipes[selectedStaple.emoji];
+}else if(totalWeight <= 500){
+finalRecipeName = "轻食版" + stapleRecipes[selectedStaple.emoji];
+}else{
+finalRecipeName = stapleRecipes[selectedStaple.emoji];
+}
+
+}else{
+
+if(totalWeight >= 1400){
+finalRecipeName = "巨无霸" + dishRecipes[Math.floor(Math.random()*dishRecipes.length)];
+}else if(totalWeight <= 600){
+finalRecipeName = "轻享" + dishRecipes[Math.floor(Math.random()*dishRecipes.length)];
+}else{
+finalRecipeName = dishRecipes[Math.floor(Math.random()*dishRecipes.length)];
+}
+
+}
+
+document.getElementById("resultName").innerText = finalRecipeName;
 
 document.getElementById("tags").innerHTML = `
 <div class="tag">${selectedMethod}</div>
@@ -739,15 +996,20 @@ ${v.emoji} ${v.name} · ${v.weight}g
 `).join("");
 
 const steps = [
-"将所有食材清洗并处理备用。",
-`使用 ${selectedTool} 进行预热。`,
-`采用 ${selectedMethod} 技法开始烹饪。`,
-"加入 AI 推荐秘制酱料提升香气。",
-"控制火候后完成高级摆盘。"
+"1. 将所有食材彻底清洗，并按照不同食材切块、去骨或改刀备用。",
+`2. 使用 ${selectedTool} 进行充分预热，并提前准备基础调味料。`,
+`3. 采用 ${selectedMethod} 技法处理主食材，先锁住香气与水分。`,
+"4. 分阶段加入辅料与调味，让整体层次更加丰富。",
+"5. 根据火候变化不断翻动或慢炖，避免口感失衡。",
+"6. 最后加入 AI 推荐秘制酱汁进行提鲜。",
+"7. 完成摆盘后可撒上点缀香料提升视觉效果。"
 ];
 
 document.getElementById("steps").innerHTML =
 steps.map(v=>`<li>${v}</li>`).join("");
+
+const recipeDifficulty = "⭐".repeat(Math.floor(Math.random()*3)+2);
+const recipeTime = `${10+Math.floor(Math.random()*40)} 分钟`;
 
 document.getElementById("comment").innerHTML = `
 <h3>🤖 AI 美食点评</h3>
@@ -757,11 +1019,11 @@ ${comments[Math.floor(Math.random()*comments.length)]}
 </div>
 
 <div style="margin-top:14px">
-⭐ 难度：${"⭐".repeat(Math.floor(Math.random()*3)+2)}
+⭐ 难度：${recipeDifficulty}
 </div>
 
 <div style="margin-top:8px">
-⏱️ 时间：${10+Math.floor(Math.random()*40)} 分钟
+⏱️ 时间：${recipeTime}
 </div>
 `;
 
@@ -773,12 +1035,30 @@ ${pairings[Math.floor(Math.random()*pairings.length)]}<br>
 </div>
 `;
 
-const protein = 20 + Math.floor(Math.random()*60);
-const fat = 10 + Math.floor(Math.random()*40);
-const carbs = 15 + Math.floor(Math.random()*80);
-const vitamins = 10 + Math.floor(Math.random()*90);
+const totalWeightValue = selectedFoods.reduce((sum,v)=>sum+parseInt(v.weight),0);
+
+const protein = Math.floor(totalWeightValue*0.05) + Math.floor(Math.random()*20);
+const fat = Math.floor(totalWeightValue*0.03) + Math.floor(Math.random()*15);
+const carbs = Math.floor(totalWeightValue*0.04) + Math.floor(Math.random()*25);
+const vitamins = Math.min(100,Math.floor(totalWeightValue*0.06));
+
+
+currentRecipeData = {
+emoji:document.getElementById("resultEmoji").innerText,
+name:document.getElementById("resultName").innerText,
+method:selectedMethod,
+tool:selectedTool,
+ingredients:selectedFoods.map(v=>`${v.emoji} ${v.name} ${v.weight}g`).join("、"),
+comment:document.getElementById("comment").innerText,
+steps: steps,
+difficulty: recipeDifficulty,
+time: recipeTime,
+recommend: document.getElementById("recommend").innerHTML,
+nutrition: document.getElementById("nutrition").innerHTML
+};
 
 document.getElementById("nutrition").innerHTML = `
+
 <div style="line-height:2">
 💪 蛋白质：${protein}g<br>
 🧈 脂肪：${fat}g<br>
@@ -794,7 +1074,222 @@ function closePage(){
 document.getElementById("resultPage").style.display = "none";
 }
 
+
+let currentRecipeData = null;
+
+function saveRecipe(){
+
+if(!currentRecipeData){
+alert("暂无可保存的菜谱");
+return;
+}
+
+const oldRecipes = JSON.parse(localStorage.getItem("myRecipes") || "[]");
+
+oldRecipes.unshift(currentRecipeData);
+
+localStorage.setItem("myRecipes", JSON.stringify(oldRecipes));
+
+alert("菜谱已保存到个人菜谱 📖");
+}
+
+function openMyRecipes(){
+
+document.getElementById("myRecipePage").style.display = "block";
+
+const list = JSON.parse(localStorage.getItem("myRecipes") || "[]");
+
+const container = document.getElementById("myRecipeList");
+
+if(list.length===0){
+container.innerHTML = "<div style='text-align:center;padding:20px'>暂无保存的菜谱</div>";
+return;
+}
+
+container.innerHTML = list.map((recipe,index)=>`
+<div style="background:white;padding:20px;border-radius:22px;margin-bottom:16px;box-shadow:0 5px 20px rgba(0,0,0,.05)">
+<div style="font-size:28px">${recipe.emoji}</div>
+<div style="font-size:24px;font-weight:800;margin-top:10px">${recipe.name}</div>
+
+<div style="margin-top:12px;line-height:2">
+🍳 烹饪方式：${recipe.method}<br>
+🛠️ 工具：${recipe.tool}<br>
+🥬 食材：${recipe.ingredients}
+</div>
+
+<div style="display:flex;gap:10px;margin-top:12px">
+<button onclick="viewRecipe(${index})"
+style="border:none;background:#79ca7d;color:white;padding:10px 18px;border-radius:14px;cursor:pointer">
+查看详情
+</button>
+
+<button onclick="deleteRecipe(${index})"
+style="border:none;background:#ff7ea8;color:white;padding:10px 18px;border-radius:14px;cursor:pointer">
+删除
+</button>
+</div>
+</div>
+`).join("");
+}
+
+
+
+function viewRecipe(index){
+
+const list = JSON.parse(localStorage.getItem("myRecipes") || "[]");
+
+const recipe = list[index];
+
+if(!recipe){
+alert("菜谱数据不存在");
+return;
+}
+
+document.getElementById("savedRecipeDetailPage").style.display = "block";
+
+document.getElementById("savedEmoji").innerText = recipe.emoji || "🍜";
+
+document.getElementById("savedName").innerText = recipe.name || "AI 美味料理";
+
+document.getElementById("savedTags").innerHTML = `
+<div class="tag">${recipe.method || "未知方式"}</div>
+<div class="tag">${recipe.tool || "未知工具"}</div>
+<div class="tag">个人收藏</div>
+`;
+
+document.getElementById("savedIngredients").innerHTML = `
+<div style="line-height:2">${recipe.ingredients || "暂无食材信息"}</div>
+`;
+
+document.getElementById("savedComment").innerHTML = `
+<div style="line-height:2">${recipe.comment || "暂无 AI 描述"}</div>
+`;
+
+const recipeSteps = recipe.steps || [
+"1. 准备并清洗食材。",
+"2. 进行基础预热与调味。",
+"3. 按照推荐方式完成烹饪。",
+"4. 最后进行摆盘即可食用。"
+];
+
+document.getElementById("savedSteps").innerHTML =
+recipeSteps.map(v=>`<li style="margin:10px 0;line-height:1.8">${v}</li>`).join("");
+
+document.getElementById("savedDifficulty").innerHTML = `
+<div style="line-height:2">
+⭐ 制作难度：${recipe.difficulty || "⭐⭐⭐"}<br>
+⏱️ 制作时间：${recipe.time || "20 分钟"}
+</div>
+`;
+
+document.getElementById("savedRecommend").innerHTML =
+recipe.recommend || `
+<div style="line-height:2">
+🥗 推荐搭配清爽蔬菜沙拉<br>
+🥤 推荐搭配气泡饮品<br>
+🍮 推荐搭配饭后甜点
+</div>
+`;
+
+document.getElementById("savedNutrition").innerHTML =
+recipe.nutrition || `
+<div style="line-height:2">
+💪 蛋白质：30g<br>
+🧈 脂肪：15g<br>
+🍚 碳水化合物：45g<br>
+🥦 维生素指数：65%
+</div>
+`;
+}
+
+function closeSavedRecipe(){
+document.getElementById("savedRecipeDetailPage").style.display = "none";
+}
+
+
+function deleteRecipe(index){
+
+const confirmDelete = confirm("确定要删除这份个人食谱吗？删除后将无法恢复。");
+
+if(!confirmDelete){
+return;
+}
+
+const list = JSON.parse(localStorage.getItem("myRecipes") || "[]");
+
+list.splice(index,1);
+
+localStorage.setItem("myRecipes", JSON.stringify(list));
+
+openMyRecipes();
+}
+
+function closeMyRecipes(){
+document.getElementById("myRecipePage").style.display = "none";
+}
+
 </script>
+
+
+<div class="result-page" id="myRecipePage">
+
+<div class="result-card">
+<div class="result-name">📖 个人菜谱库</div>
+
+<div class="box">
+<div id="myRecipeList"></div>
+</div>
+
+<button class="close-btn" onclick="closeMyRecipes()">关闭</button>
+
+</div>
+</div>
+
+
+<div class="result-page" id="savedRecipeDetailPage">
+
+<div class="result-card">
+
+<div class="result-emoji" id="savedEmoji">🍜</div>
+
+<div class="result-name" id="savedName"></div>
+
+<div class="tags" id="savedTags"></div>
+
+<div class="box">
+<h3>🥘 食材</h3>
+<div id="savedIngredients"></div>
+</div>
+
+<div class="box">
+<h3>🤖 AI 美食点评</h3>
+<div id="savedComment"></div>
+</div>
+
+<div class="box">
+<h3>👨‍🍳 详细制作步骤</h3>
+<ul id="savedSteps"></ul>
+</div>
+
+<div class="box">
+<h3>⭐ 制作难度与时间</h3>
+<div id="savedDifficulty"></div>
+</div>
+
+<div class="box">
+<h3>🥗 推荐搭配</h3>
+<div id="savedRecommend"></div>
+</div>
+
+<div class="box">
+<h3>📊 营养成分分析</h3>
+<div id="savedNutrition"></div>
+</div>
+
+<button class="close-btn" onclick="closeSavedRecipe()">返回个人菜谱</button>
+
+</div>
+</div>
 
 </body>
 </html>
